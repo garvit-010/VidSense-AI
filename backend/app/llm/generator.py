@@ -1,19 +1,21 @@
-from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_huggingface import ChatHuggingFace, HuggingFaceEndpoint
 from langchain_core.prompts import PromptTemplate
-from app.config import GOOGLE_API_KEY
-
+from app.config import HUGGINGFACEHUB_API_TOKEN
 
 class AnswerGenerator:
     def __init__(
         self,
-        model: str = "gemini-2.5-flash",
+        repo_id: str = "mistralai/Mistral-7B-Instruct-v0.2",
         temperature: float = 0.2,
     ):
-        self.llm = ChatGoogleGenerativeAI(
-            model=model,
-            google_api_key=GOOGLE_API_KEY,
+        llm = HuggingFaceEndpoint(
+            repo_id=repo_id,
+            huggingfacehub_api_token=HUGGINGFACEHUB_API_TOKEN,
+            max_new_tokens=512,
             temperature=temperature,
         )
+
+        self.chat = ChatHuggingFace(llm=llm)
 
         self.prompt = PromptTemplate(
             template=(
@@ -33,7 +35,7 @@ class AnswerGenerator:
         )
 
     def generate(self, context: str, question: str) -> str:
-        response = self.llm.invoke(
+        response = self.chat.invoke(
             self.prompt.format(context=context, question=question)
         )
         return response.content.strip()

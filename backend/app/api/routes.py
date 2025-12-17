@@ -11,6 +11,7 @@ from app.retrieval.query_rewriter import QueryRewriter
 from app.retrieval.retriever import VectorRetriever
 from app.llm.generator import AnswerGenerator
 from app.memory.session import SessionMemory
+from app.utils.logger import log_event
 
 router = APIRouter()
 web_search = WebSearchTool()
@@ -94,7 +95,6 @@ def ask_question(payload: AskRequest):
         )
         source = "transcript"
 
-        # 🌐 Web fallback
         if "Insufficient data in transcript" in answer:
             web_context = web_search.search_web(payload.question)
             web_context = web_context[:4000]
@@ -105,9 +105,18 @@ def ask_question(payload: AskRequest):
             )
             source = "web"
 
-    # 🧠 STORE MEMORY (AFTER answer)
+
     memory.add(payload.session_id, "user", payload.question)
     memory.add(payload.session_id, "assistant", answer)
+    
+    log_event({
+        "session_id": payload.session_id,
+        "question": payload.question,
+        "answer": answer,
+        "source": source,
+        "used_memory": bool(memory_text),
+        "num_retrieved_docs": len(docs) if docs else 0,
+    })
 
     return {
         "question": payload.question,

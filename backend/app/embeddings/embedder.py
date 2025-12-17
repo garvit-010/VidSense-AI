@@ -1,13 +1,13 @@
-from langchain_google_genai import GoogleGenerativeAIEmbeddings
-from app.config import GOOGLE_API_KEY
-
+from langchain_huggingface import HuggingFaceEndpointEmbeddings
+from app.config import HUGGINGFACEHUB_API_TOKEN
 
 class EmbeddingProvider:
-    def __init__(self, model: str = "models/gemini-embedding-001"):
-        self.embeddings = GoogleGenerativeAIEmbeddings(
-            model=model,
-            google_api_key=GOOGLE_API_KEY
+    def __init__(self, repo_id="BAAI/bge-base-en-v1.5"):
+        self.embeddings = HuggingFaceEndpointEmbeddings(
+            repo_id=repo_id,
+            huggingfacehub_api_token=HUGGINGFACEHUB_API_TOKEN,
         )
+
 
     def get(self):
         return self.embeddings

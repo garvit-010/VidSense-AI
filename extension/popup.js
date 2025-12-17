@@ -2,6 +2,19 @@ const askBtn = document.getElementById("askBtn");
 const questionInput = document.getElementById("question");
 const chatDiv = document.getElementById("chat");
 
+// ---------------- SESSION ID ----------------
+function getSessionId() {
+  let sessionId = localStorage.getItem("vidsense_session_id");
+
+  if (!sessionId) {
+    sessionId = crypto.randomUUID();
+    localStorage.setItem("vidsense_session_id", sessionId);
+  }
+
+  return sessionId;
+}
+
+// ---------------- CHAT UI ----------------
 function addMessage(text, className) {
   const div = document.createElement("div");
   div.className = `message ${className}`;
@@ -10,12 +23,15 @@ function addMessage(text, className) {
   chatDiv.scrollTop = chatDiv.scrollHeight;
 }
 
+// ---------------- ASK BUTTON ----------------
 askBtn.addEventListener("click", async () => {
   const question = questionInput.value.trim();
   if (!question) return;
 
   addMessage("You: " + question, "user");
   questionInput.value = "";
+
+  const sessionId = getSessionId();
 
   // Get video ID from content script
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
@@ -24,29 +40,37 @@ askBtn.addEventListener("click", async () => {
       { type: "GET_VIDEO_ID" },
       async (response) => {
         const videoId = response?.videoId;
+
         if (!videoId) {
           addMessage("AI: Not a YouTube video", "ai");
           return;
         }
 
-        // Ingest video (safe to call multiple times)
+        // Ingest video (idempotent)
         await fetch(
           `http://127.0.0.1:8000/ingest/youtube/${videoId}`,
           { method: "POST" }
         );
 
-        // Ask question
+        // Ask backend
         const res = await fetch(
           "http://127.0.0.1:8000/ask",
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ question })
+            body: JSON.stringify({
+              question: question,
+              session_id: sessionId
+            })
           }
         );
 
         const data = await res.json();
-        addMessage("AI: " + data.answer, "ai");
+
+        addMessage(
+          "AI: " + (data.answer || "Something went wrong"),
+          "ai"
+        );
       }
     );
   });
