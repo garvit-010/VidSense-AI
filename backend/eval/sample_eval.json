@@ -1,0 +1,12 @@
+[
+  {
+    "question": "How did Beijing reduce air pollution?",
+    "ground_truth": "Beijing reduced air pollution by shutting down polluting factories, replacing coal stoves with electric or gas heating, expanding public transport, and enforcing strict emission regulations.",
+    "expected_source": "transcript"
+  },
+  {
+    "question": "Condition of pollution in Bangladesh",
+    "ground_truth": "Bangladesh suffers from severe air and water pollution due to industrial emissions, vehicle exhaust, brick kilns, and poor waste management.",
+    "expected_source": "web"
+  }
+]
