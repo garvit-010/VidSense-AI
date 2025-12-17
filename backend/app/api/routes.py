@@ -19,7 +19,6 @@ web_generator = WebAnswerGenerator()
 memory = SessionMemory()
 
 
-# ---------- Request Models ----------
 class AskRequest(BaseModel):
     question: str
     session_id : str
