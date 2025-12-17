@@ -1,25 +1,66 @@
 body {
+  margin: 0;
+  padding: 0;
+  width: 380px;        /* BIGGER WIDTH */
+  height: 520px;       /* BIGGER HEIGHT */
   font-family: Arial, sans-serif;
-  width: 300px;
-  padding: 10px;
+  background: #ffffff;
+}
+
+#container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+h3 {
+  margin: 10px;
+  text-align: center;
 }
 
 #chat {
-  height: 200px;
+  flex: 1;             /* TAKES ALL SPACE */
   overflow-y: auto;
   border: 1px solid #ddd;
-  padding: 5px;
-  margin-bottom: 10px;
+  padding: 10px;
+  margin: 0 10px 10px 10px;
+  background: #fafafa;
 }
 
 .message {
-  margin-bottom: 6px;
+  max-width: 90%;
+  margin-bottom: 8px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 13px;
+  line-height: 1.4;
 }
 
-.user {
+.message.user {
+  background: #e0e7ff;
+  align-self: flex-end;
   font-weight: bold;
 }
 
-.ai {
-  color: #333;
+.message.ai {
+  background: #f1f5f9;
+  align-self: flex-start;
+}
+
+#inputBox {
+  display: flex;
+  gap: 6px;
+  padding: 10px;
+  border-top: 1px solid #ddd;
+}
+
+#question {
+  flex: 1;
+  padding: 8px;
+  font-size: 13px;
+}
+
+#askBtn {
+  padding: 8px 12px;
+  cursor: pointer;
 }

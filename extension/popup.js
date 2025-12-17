@@ -28,12 +28,11 @@ askBtn.addEventListener("click", async () => {
   const question = questionInput.value.trim();
   if (!question) return;
 
-  addMessage("You: " + question, "user");
+  addMessage(question, "user");
   questionInput.value = "";
 
   const sessionId = getSessionId();
 
-  // Get video ID from content script
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
     chrome.tabs.sendMessage(
       tabs[0].id,
@@ -42,17 +41,17 @@ askBtn.addEventListener("click", async () => {
         const videoId = response?.videoId;
 
         if (!videoId) {
-          addMessage("AI: Not a YouTube video", "ai");
+          addMessage("Not a YouTube video", "ai");
           return;
         }
 
-        // Ingest video (idempotent)
         await fetch(
           `http://127.0.0.1:8000/ingest/youtube/${videoId}`,
           { method: "POST" }
         );
 
-        // Ask backend
+        addMessage("Thinking...", "ai");
+
         const res = await fetch(
           "http://127.0.0.1:8000/ask",
           {
@@ -67,10 +66,8 @@ askBtn.addEventListener("click", async () => {
 
         const data = await res.json();
 
-        addMessage(
-          "AI: " + (data.answer || "Something went wrong"),
-          "ai"
-        );
+        chatDiv.lastChild.innerText =
+          data.answer || "Something went wrong";
       }
     );
   });
