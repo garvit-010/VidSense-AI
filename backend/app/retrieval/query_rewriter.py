@@ -57,5 +57,15 @@ class QueryRewriter:
             return " ".join(words[:10])
         except Exception:
             return question
+    def rewrite_with_memory(self, question: str, memory: str) -> str:
+        combined = f"""
+                    Conversation context:
+                    {memory}
+
+                    Current question:
+                    {question}
+                    """
+        return self.rewrite(combined)
+
 
 
