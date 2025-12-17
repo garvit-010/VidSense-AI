@@ -1,7 +1,7 @@
 
 # 🎥 VidSense AI — Chat With Any YouTube Video
 
-**VidSense AI** is an end-to-end Retrieval-Augmented Generation (RAG) system that allows users to **ask natural language questions about any YouTube video** and receive **context-aware answers in real time**, directly inside the browser via a Chrome extension.
+**VidSense AI** is an end-to-end Retrieval-Augmented Generation (RAG) system that allows users to **ask natural language questions about any YouTube video** and receive **context-aware answers in real time**, directly inside the browser via an extension.
 
 It combines **YouTube transcript ingestion, semantic search, conversational memory, web fallback, and LLM evaluation**, all built with production-grade engineering practices.
 
