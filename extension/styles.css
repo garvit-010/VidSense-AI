@@ -1,0 +1,25 @@
+body {
+  font-family: Arial, sans-serif;
+  width: 300px;
+  padding: 10px;
+}
+
+#chat {
+  height: 200px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  padding: 5px;
+  margin-bottom: 10px;
+}
+
+.message {
+  margin-bottom: 6px;
+}
+
+.user {
+  font-weight: bold;
+}
+
+.ai {
+  color: #333;
+}
