@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json.schemastore.org/mcp-server-config.json",
+  "mcpServers": {
+    "vidsense-server": {
+      "command": "python",
+      "args": ["-m", "app.mcp.server"],
+      "description": "VidSense YouTube Video Intelligence & ChromaDB Search Server",
+      "env": {
+        "PYTHONPATH": "."
+      }
+    },
+    "web-research": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-duckduckgo"],
+      "description": "Open-source DuckDuckGo Web Intelligence MCP Server"
+    },
+    "sqlite-memory": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-sqlite", "--db-path", "./vidsense_memory.db"],
+      "description": "Open-source SQLite MCP Server for persistent session memory and analytics"
+    },
+    "filesystem-notes": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "./notes"],
+      "description": "Open-source Local Filesystem Context & Video Note Exporter"
+    }
+  }
+}

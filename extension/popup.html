@@ -1,23 +1,73 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VidSense AI — Autonomous Video Intelligence Agent</title>
   <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 </head>
 <body>
   <div id="container">
-    <h3>VidSense AI</h3>
+    <!-- Header -->
+    <header class="app-header">
+      <div class="brand">
+        <div class="logo-orb"></div>
+        <div>
+          <h1 class="brand-title">VidSense<span class="brand-accent">.AI</span></h1>
+          <p class="brand-subtitle">Autonomous Video Intelligence Agent</p>
+        </div>
+      </div>
+      <div class="status-pill" id="agentStatus">
+        <span class="status-dot"></span>
+        <span class="status-text">ChromaDB • MCP Active</span>
+      </div>
+    </header>
 
-    <div id="chat"></div>
-
-    <div id="inputBox">
-      <input
-        id="question"
-        type="text"
-        placeholder="Ask about this video..."
-      />
-      <button id="askBtn">Ask</button>
+    <!-- Video Metadata Ribbon -->
+    <div class="video-ribbon" id="videoRibbon">
+      <span class="ribbon-icon">▶</span>
+      <span class="ribbon-text" id="videoTitle">Detecting active YouTube tab...</span>
     </div>
+
+    <!-- Chat Stream -->
+    <main id="chat" class="chat-container">
+      <div class="welcome-card">
+        <div class="welcome-badge">AI Systems Engineering Demo</div>
+        <h3>Multi-Tool Video Intelligence</h3>
+        <p>Grounded in persistent ChromaDB vectors with autonomous Model Context Protocol (MCP) tool execution, security guardrails, and real-time observability.</p>
+        <div class="quick-chips">
+          <button class="chip" data-prompt="Summarize the core technical thesis of this video">⚡ Quick Summary</button>
+          <button class="chip" data-prompt="What are the key timestamps and main arguments?">🕒 Key Moments</button>
+          <button class="chip" data-prompt="Is there any counter-argument or recent update on the web?">🌐 Cross-check Web</button>
+        </div>
+      </div>
+    </main>
+
+    <!-- Input Footer -->
+    <footer class="app-footer">
+      <div class="input-box-wrapper">
+        <input
+          id="question"
+          type="text"
+          placeholder="Ask the Agent about this video..."
+          autocomplete="off"
+        />
+        <button id="askBtn" title="Send to Agent">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="22" y1="2" x2="11" y2="13"></line>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+          </svg>
+        </button>
+      </div>
+      <div class="footer-meta">
+        <span>🛡️ Guardrails Active</span>
+        <span>•</span>
+        <span>📊 MLflow Traced</span>
+      </div>
+    </footer>
   </div>
 
   <script src="popup.js"></script>

@@ -1,127 +1,113 @@
+from typing import Optional, Dict, Any, List
 from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
-from app.tools.web_search import WebSearchTool
-from app.llm.web_generator import WebAnswerGenerator
 from app.ingestion.youtube import YouTubeTranscriptLoader
 from app.chunking.splitter import DocumentChunker
 from app.embeddings.embedder import EmbeddingProvider
-from app.vectorstore.faiss_store import FAISSVectorStore
-from app.retrieval.query_rewriter import QueryRewriter
-from app.retrieval.retriever import VectorRetriever
-from app.llm.generator import AnswerGenerator
+from app.vectorstore.chroma_store import ChromaVectorStore
+from app.agent.orchestrator import VideoIntelligenceAgent, AgentResponse
 from app.memory.session import SessionMemory
-from app.utils.logger import log_event
+from app.tools.web_search import WebSearchTool
+from app.mcp.client import MCPToolRegistry
 
 router = APIRouter()
-web_search = WebSearchTool()
-web_generator = WebAnswerGenerator()
-memory = SessionMemory()
+
+# Global Singleton Services
+embedder = EmbeddingProvider()
+embeddings = embedder.get()
+chroma_store = ChromaVectorStore(persist_directory="chroma_db")
+session_memory = SessionMemory()
+mcp_registry = MCPToolRegistry()
+
+# Autonomous Agent
+agent = VideoIntelligenceAgent(
+    vector_store=chroma_store,
+    embeddings=embeddings,
+    memory=session_memory,
+)
 
 
 class AskRequest(BaseModel):
     question: str
-    session_id : str
+    session_id: str
+    video_id: Optional[str] = None
 
 
-# ---------- Global Pipeline Setup ----------
-embedder = EmbeddingProvider()
-embeddings = embedder.get()
-
-vector_store = FAISSVectorStore(index_path="faiss_main")
-rewriter = QueryRewriter()
-generator = AnswerGenerator()
+class MCPCallRequest(BaseModel):
+    tool_name: str
+    arguments: Dict[str, Any] = Field(default_factory=dict)
 
 
-# ---------- Routes ----------
 @router.get("/health")
 def health():
-    return {"status": "ok"}
+    try:
+        indexed_chunks = chroma_store.count(embeddings)
+    except Exception:
+        indexed_chunks = 0
+
+    return {
+        "status": "healthy",
+        "system": "VidSense AI Autonomous Agent",
+        "vector_store": "ChromaDB",
+        "indexed_chunks": indexed_chunks,
+        "mcp_tools_available": [t["name"] for t in mcp_registry.list_tools()],
+    }
 
 
 @router.post("/ingest/youtube/{video_id}")
 def ingest_youtube(video_id: str):
-    loader = YouTubeTranscriptLoader(video_id)
-    docs = loader.load()
+    """
+    Ingest and index a YouTube video transcript into ChromaDB with deterministic chunk metadata.
+    """
+    try:
+        loader = YouTubeTranscriptLoader(video_id)
+        docs = loader.load()
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Failed to fetch transcript: {str(e)}")
 
     chunker = DocumentChunker()
     chunks = chunker.split(docs)
 
-    vector_store.build(chunks, embeddings)
-    vector_store.save()
+    # Ingest into ChromaDB with video_id metadata
+    chroma_store.build(documents=chunks, embeddings=embeddings, video_id=video_id)
 
     return {
+        "status": "success",
         "video_id": video_id,
-        "chunks": len(chunks)
+        "chunks_indexed": len(chunks),
+        "vector_store": "ChromaDB",
     }
 
 
-@router.post("/ask")
+@router.post("/ask", response_model=AgentResponse)
 def ask_question(payload: AskRequest):
+    """
+    Execute full agentic workflow: Guardrails -> Query Rewriting -> ChromaDB Semantic Retrieval
+    -> Sufficiency Check -> Autonomous MCP Tool Execution -> Output Validation -> MLflow Telemetry.
+    """
     if not payload.question.strip():
         raise HTTPException(status_code=400, detail="Question cannot be empty")
 
+    response = agent.run(
+        question=payload.question,
+        session_id=payload.session_id,
+        video_id=payload.video_id,
+    )
+    return response
+
+
+@router.get("/mcp/tools")
+def list_mcp_tools():
+    """List all tools registered in the Model Context Protocol (MCP) registry."""
+    return {"tools": mcp_registry.list_tools()}
+
+
+@router.post("/mcp/call")
+def call_mcp_tool(payload: MCPCallRequest):
+    """Directly execute a Model Context Protocol (MCP) tool."""
     try:
-        vector_db = vector_store.load(embeddings)
-    except FileNotFoundError:
-        raise HTTPException(status_code=400, detail="No video ingested yet")
-
-    retriever = VectorRetriever(vector_db)
-
-    # 🧠 MEMORY: get previous conversation
-    memory_text = memory.get_context(payload.session_id)
-
-    # 🧠 MEMORY-AWARE rewriting
-    if memory_text:
-        search_query = rewriter.rewrite_with_memory(
-            payload.question,
-            memory_text
-        )
-    else:
-        search_query = rewriter.rewrite(payload.question)
-
-    docs = retriever.retrieve(search_query)
-
-    if not docs:
-        answer = "Insufficient data in transcript"
-        source = "transcript"
-    else:
-        context = "\n\n".join(doc.page_content for doc in docs)
-
-        answer = generator.generate(
-            context=context,
-            question=payload.question
-        )
-        source = "transcript"
-
-        if "Insufficient data in transcript" in answer:
-            web_context = web_search.search_web(payload.question)
-            web_context = web_context[:4000]
-
-            answer = web_generator.generate(
-                context=web_context,
-                question=payload.question
-            )
-            source = "web"
-
-
-    memory.add(payload.session_id, "user", payload.question)
-    memory.add(payload.session_id, "assistant", answer)
-    
-    log_event({
-        "session_id": payload.session_id,
-        "question": payload.question,
-        "answer": answer,
-        "source": source,
-        "used_memory": bool(memory_text),
-        "num_retrieved_docs": len(docs) if docs else 0,
-    })
-
-    return {
-        "question": payload.question,
-        "answer": answer,
-        "source": source
-    }
-
-
-
+        result = mcp_registry.call_tool(payload.tool_name, payload.arguments)
+        return {"tool": payload.tool_name, "result": result}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))

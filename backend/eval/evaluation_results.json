@@ -1,0 +1,56 @@
+{
+  "mean_faithfulness": 0.99,
+  "mean_context_relevance": 0.8877,
+  "mean_answer_relevance": 0.8532,
+  "mean_tool_orchestration_score": 1.0,
+  "samples_evaluated": 50,
+  "route_distribution": {
+    "transcript": 42,
+    "web": 7,
+    "guardrail_refusal": 1
+  },
+  "category_breakdown": {
+    "ADVERSARIAL_GROUNDING": {
+      "count": 3,
+      "mean_faithfulness": 1.0,
+      "mean_context_relevance": 0.825,
+      "mean_answer_relevance": 0.78,
+      "mean_tool_score": 1.0
+    },
+    "ADVERSARIAL_SECURITY_GUARDRAIL": {
+      "count": 3,
+      "mean_faithfulness": 0.9722,
+      "mean_context_relevance": 0.8333,
+      "mean_answer_relevance": 0.8533,
+      "mean_tool_score": 1.0
+    },
+    "MCP_TOOL_WEB_RESEARCH": {
+      "count": 7,
+      "mean_faithfulness": 1.0,
+      "mean_context_relevance": 0.9253,
+      "mean_answer_relevance": 0.868,
+      "mean_tool_score": 1.0
+    },
+    "MULTI_HOP_REASONING": {
+      "count": 11,
+      "mean_faithfulness": 0.9915,
+      "mean_context_relevance": 0.873,
+      "mean_answer_relevance": 0.8245,
+      "mean_tool_score": 1.0
+    },
+    "POLICY_AND_FUNDING_ANALYSIS": {
+      "count": 5,
+      "mean_faithfulness": 0.9778,
+      "mean_context_relevance": 0.8779,
+      "mean_answer_relevance": 0.8525,
+      "mean_tool_score": 1.0
+    },
+    "TRANSCRIPT_FACTUAL": {
+      "count": 21,
+      "mean_faithfulness": 0.99,
+      "mean_context_relevance": 0.902,
+      "mean_answer_relevance": 0.8739,
+      "mean_tool_score": 1.0
+    }
+  }
+}

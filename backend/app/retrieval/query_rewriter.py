@@ -1,71 +1,44 @@
 import os
-from langchain_huggingface import ChatHuggingFace, HuggingFaceEndpoint
-from langchain_core.prompts import PromptTemplate
-from dotenv import load_dotenv
 import re
-
-load_dotenv()
+from typing import Optional
 
 
 class QueryRewriter:
-    def __init__(
-        self,
-        repo_id: str = "mistralai/Mistral-7B-Instruct-v0.2",
-        temperature: float = 0.0,
-        max_new_tokens: int = 64,
-    ):
-        self.llm = HuggingFaceEndpoint(
-            repo_id=repo_id,
-            task="text-generation",
-            huggingfacehub_api_token=os.getenv("HUGGINGFACEHUB_API_TOKEN"),
-            temperature=temperature,
-            max_new_tokens=max_new_tokens,
-        )
+    """
+    High-Performance Search Query Optimizer.
+    Converts verbose questions into keyword-dense retrieval queries with zero latency
+    and zero dependence on brittle external API endpoints.
+    """
 
-        self.chat = ChatHuggingFace(llm=self.llm)
+    STOPWORDS = {
+        "what", "when", "where", "which", "who", "whom", "whose", "why", "how",
+        "is", "are", "was", "were", "be", "been", "being", "have", "has", "had",
+        "do", "does", "did", "the", "a", "an", "and", "or", "but", "in", "on",
+        "at", "to", "for", "of", "with", "by", "from", "up", "about", "into",
+        "over", "after", "can", "could", "would", "should", "did", "tell", "me",
+        "explain", "describe", "according", "video", "mentioned", "please"
+    }
 
-        self.prompt = PromptTemplate(
-            template=(
-                "You are a search query optimizer.\n"
-                "Rewrite the user question into a short, keyword-focused search query.\n"
-                "Rules:\n"
-                "- Do NOT answer the question\n"
-                "- Do NOT explain\n"
-                "- Do NOT use full sentences\n"
-                "- Do NOT use markdown\n"
-                "- Output keywords only\n\n"
-                "User question: {question}\n"
-                "Search query:"
-            ),
-            input_variables=["question"],
-        )
+    def __init__(self, *args, **kwargs):
+        pass
 
     def rewrite(self, question: str) -> str:
-        try:
-            response = self.chat.invoke(
-                self.prompt.format(question=question)
-            )
+        """Extracts high-salience search keywords from the user question."""
+        cleaned = re.sub(r"[^\w\s-]", " ", question)
+        tokens = cleaned.strip().split()
+        keywords = [t for t in tokens if t.lower() not in self.STOPWORDS and len(t) > 2]
 
-            import re
-            text = response.content.strip()
-            text = text.replace("Search query:", "")
-            text = re.sub(r"[.,]", "", text)
-            text = re.sub(r"\s+", " ", text).strip()
+        if not keywords:
+            return question.strip()
 
-            # keep only first N meaningful words
-            words = text.split(" ")
-            return " ".join(words[:10])
-        except Exception:
-            return question
+        # Keep top 8 meaningful search keywords
+        return " ".join(keywords[:8])
+
     def rewrite_with_memory(self, question: str, memory: str) -> str:
-        combined = f"""
-                    Conversation context:
-                    {memory}
+        """Combines recent memory context entities with current query terms."""
+        mem_tokens = [t for t in re.sub(r"[^\w\s-]", " ", memory).split() if len(t) > 3 and t.lower() not in self.STOPWORDS]
+        q_tokens = [t for t in re.sub(r"[^\w\s-]", " ", question).split() if len(t) > 2 and t.lower() not in self.STOPWORDS]
 
-                    Current question:
-                    {question}
-                    """
-        return self.rewrite(combined)
-
-
-
+        # Interleave context keywords
+        combined = list(dict.fromkeys(q_tokens + mem_tokens[:4]))
+        return " ".join(combined[:10])

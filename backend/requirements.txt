@@ -1,9 +1,30 @@
-fastapi
-uvicorn
-python-dotenv
-youtube-transcript-api
-langchain
-langchain-community
-langchain-text-splitters
-langchain-google-genai
-faiss-cpu
+# API & Server Core
+fastapi>=0.110.0
+uvicorn>=0.28.0
+pydantic>=2.7.0
+python-dotenv>=1.0.1
+
+# Ingestion & Tools
+youtube-transcript-api>=0.6.2
+duckduckgo-search>=6.1.0
+
+# LLM Orchestration & Frameworks
+langchain>=0.2.0
+langchain-core>=0.2.0
+langchain-community>=0.2.0
+langchain-text-splitters>=0.2.0
+langchain-google-genai>=1.0.0
+langchain-huggingface>=0.0.3
+
+# Vector Store
+chromadb>=0.5.0
+langchain-chroma>=0.1.0
+
+# Model Context Protocol (MCP)
+mcp>=1.0.0
+
+# LLMOps, Observability & Evaluation
+ragas>=0.1.9
+mlflow>=2.14.0
+pandas>=2.2.0
+datasets>=2.19.0
