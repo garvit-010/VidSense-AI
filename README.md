@@ -419,23 +419,5 @@ VidSense-AI/
     └── styles.css                    # Futuristic dark-mode glassmorphic styling
 ```
 
----
-
-## 💼 AI Engineer Resume Bullet Points (Copy & Paste Ready)
-
-Highlighting this project on your resume demonstrates senior-level AI systems design:
-
-> **VidSense AI — Autonomous Multi-Tool Video Intelligence Platform (LLMOps & Agentic Systems)**
-> - Engineered an autonomous multi-tool AI Agent orchestrating **ChromaDB** vector retrieval, multi-turn memory, and open-source **Model Context Protocol (MCP)** tools for real-time video intelligence.
-> - Migrated vector storage from FAISS to persistent **ChromaDB**, implementing metadata filtering by `video_id` to eliminate cross-video memory contamination and support multi-tenant ingestion.
-> - Built an enterprise **LLMOps Guardrail pipeline** detecting prompt injection and jailbreak attempts, sanitizing PII, and scrubbing credential leakage across input/output boundaries.
-> - Integrated **MLflow 3.x** for LLMOps experiment tracking and GenAI observability, emitting native multi-span execution DAGs, retrieval hyperparameters, and LLM Judge assessment telemetry to an SQLite persistence store.
-> - Designed and deployed a quantitative evaluation pipeline using **RAGAS 0.4.1** and LLM-as-a-Judge, benchmarking **Faithfulness (0.9900)**, **Context Relevance (0.8877)**, **Answer Relevancy (0.8532)**, and **Tool Selection Accuracy (1.0000)** across a 50-query multi-hop, MCP web search, and adversarial test suite.
-> - Implemented an automated **LLM-as-a-Judge evaluation harness** generating Chain-of-Thought (CoT) assessment spans directly inside MLflow traces, auditing grounding adherence, keyword coverage, and tool routing decisions.
-> - Implemented a resilient multi-provider LLM circuit breaker (Mistral-7B / Gemini-2.5-Flash / Extractive Synthesis) with local SentenceTransformers embeddings to eliminate API quota failures and guarantee 99.9% uptime.
-> - Developed a **Manifest v3 Chrome Extension** with glassmorphic reactive styling, enabling users to inspect the agent's real-time step-by-step reasoning trace drawer directly within YouTube.
-
----
-
 ## 📄 License
 MIT License. Open-source and free for educational and commercial use.
